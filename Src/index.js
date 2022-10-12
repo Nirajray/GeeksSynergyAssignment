@@ -5,7 +5,9 @@ const app=express();
 
 app.use(express.json());
 
-mongoose.connect('mongodb+srv://functionup-uranium-cohort:q8znVj4ly0Fp0mpU@cluster0.0wdvo.mongodb.net/GeeksAssignment', {
+app.use("/", route)
+
+mongoose.connect('mongodb+srv://Nirajkumar:2gkjm25Aa8wh01yS@cluster0.kzih8.mongodb.net/GeeksAssignment?authSource=admin&replicaSet=atlas-11shqf-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true', {
     useNewUrlParser: true
 })
 .then( () => console.log("MongoDb is connected"))

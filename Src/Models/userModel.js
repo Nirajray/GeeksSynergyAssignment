@@ -14,7 +14,6 @@ const UserSchema = new mongoose.Schema({
     Password: {
         type: String,
         required: true,
-        match: [/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/, 'Please enter valid Password'],
         minlen: 8,
         maxlen: 15
     },

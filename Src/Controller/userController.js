@@ -1,9 +1,25 @@
-const userModel = require("../models/userModel")
+const userModel = require("../Models/userModel")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose")
+
+// objectid validation
 const isValidObjectId = function(objectId) {
     return mongoose.Types.ObjectId.isValid(objectId)
+}
+
+//Own validation function
+const isValid = function(value) {
+    if (typeof(value) === 'undefined' || typeof(value) === null) {
+        return false
+    }
+    if (typeof(value) === "number" && (value).toString().trim().length > 0) {
+        return true
+    }
+    if (typeof(value) === "string" && (value).trim().length > 0) {
+        return true
+    }
+
 }
 
 
@@ -11,35 +27,39 @@ const createUser = async function(req, res) {
     try {
 
         let body = req.body
+
+        if (Object.keys(body).length === 0) {
+            return res.status(400).send({ Status: false, message: " Sorry Body can't be empty" })
+        }
+
         const { Name, Email, Password, PhoneNo, Profession } = body
     
-        if (!validator.isValid(Name)) {
+        if (!isValid(Name)) {
             return res.status(400).send({ status: false, msg: "name is required" })
         }
     
         // Email is Mandatory...
-        if (!validator.isValid(Email)) {
+        if (!isValid(Email)) {
             return res.status(400).send({ status: false, msg: "Email is required" })
         };
         // For a Valid Email...
-        if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(body.Email))) {
+        if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(Email))) {
             return res.status(400).send({ status: false, message: ' Email should be a valid' })
         };
 
         // Email is Unique...
-        let duplicateEmail = await userModel.findOne({ Email: body.Email })
+        let duplicateEmail = await userModel.findOne({ Email: Email })
         if (duplicateEmail) {
             return res.status(400).send({ status: false, msg: 'Email already exist' })
         };
 
            // //password Number is Mandatory...
-           if (!validator.isValid(Password)) {
+           if (!isValid(Password)) {
             return res.status(400).send({ Status: false, message: " password is required" })
         }
         // password Number is Valid...
-        let Passwordregex = /^[A-Z0-9a-z]{1}[A-Za-z0-9.@#$&]{7,14}$/
-        if (!Passwordregex.test(Password)) {
-            return res.status(401).send({ Status: false, message: " Please enter a valid password, minlength 8, maxxlength 15" })
+        if (Password.trim().length>15 || Password.trim().length<8 ) {
+            return res.status(400).send({ Status: false, message: " Please enter a valid password, minlength 8, maxxlength 15" })
         }
 
         //generate salt to hash password
@@ -48,25 +68,25 @@ const createUser = async function(req, res) {
         passwordValue = await bcrypt.hash(Password, salt);
 
         // phone Number is Mandatory...
-        if (!validator.isValid(PhoneNo)) {
+        if (!isValid(PhoneNo)) {
             return res.status(400).send({ status: false, msg: 'phone number is required' })
         };
         // phone Number is Valid...
         let Phoneregex = /^[6-9]{1}[0-9]{9}$/
 
-        if (!Phoneregex.test(phone)) {
+        if (!Phoneregex.test(PhoneNo)) {
             return res.status(400).send({ Status: false, message: " Please enter a valid phone number" })
         }
 
 
         // phone Number is Unique...
-        let duplicateMobile = await userModel.findOne({ PhoneNo: body.PhoneNo })
+        let duplicateMobile = await userModel.findOne({ PhoneNo:PhoneNo })
         if (duplicateMobile) {
             return res.status(400).send({ status: false, msg: 'phoneNo number already exist' })
         };
 
 
-        if (!validator.isValid(Profession)) {
+        if (!isValid(Profession)) {
             return res.status(400).send({ status: false, msg: "Profession is required" })
         }
 
@@ -93,7 +113,7 @@ const login = async function(req, res) {
 
         //****------------------- Email validation -------------------****** //
 
-        if (!validator.isValid(body.Email)) {
+        if (!isValid(body.Email)) {
             return res.status(400).send({ status: false, msg: "Email is required" })
         };
 
@@ -105,7 +125,7 @@ const login = async function(req, res) {
 
         //******------------------- password validation -------------------****** //
 
-        if (!validator.isValid(body.Password)) {
+        if (!isValid(body.Password)) {
             return res.status(400).send({ Status: false, message: " password is required" })
         }
 
@@ -140,18 +160,9 @@ const login = async function(req, res) {
 
 const getUser = async function(req, res) {
     try {
-        //reading userid from path
-        const _id = req.params.userId;
+      
 
-        //id format validation
-        if (_id) {
-            if (!isValidObjectId(_id)) {
-                return res.status(400).send({ status: false, message: "Invalid userId" });
-            }
-        }
-
-        const user = await userModel.findOne({ _id: _id }, { isDeleted: false })
-            //no users found
+        const user = await userModel.find({ isDeleted: false }).select({Name:1,_id:0})
         if (!user) {
             return res.status(404).send({ status: false, message: "user not found" });
         }
@@ -184,7 +195,7 @@ const updateUser = async function(req, res) {
 
         if ("Name" in requestBody) {
 
-            if (!validator.isValid(Name)) {
+            if (!isValid(Name)) {
                 return res.status(400).send({ status: false, message: "give name in the request body " })
             }
 
@@ -192,7 +203,7 @@ const updateUser = async function(req, res) {
 
         }
         if ("Email" in requestBody) {
-            if (!validator.isValid(email)) {
+            if (!isValid(email)) {
                 return res.status(400).send({ status: false, message: "give email in request body" })
             }
             if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email))) {
@@ -208,7 +219,7 @@ const updateUser = async function(req, res) {
 
         }
         if ("PhoneNo" in requestBody) {
-            if (!validator.isValid(PhoneNo)) {
+            if (!isValid(PhoneNo)) {
                 return res.status(400).send({ status: false, message: "give phone no. in request body" })
             }
             if (!Phoneregex.test(PhoneNo)) {
@@ -225,7 +236,7 @@ const updateUser = async function(req, res) {
         }
 
         if ("Password" in requestBody) {
-            if (!validator.isValid(Password)) {
+            if (!isValid(Password)) {
                 return res.status(400).send({ Status: false, message: " password is required" })
             }
             // password Number is Valid...
@@ -243,7 +254,7 @@ const updateUser = async function(req, res) {
         }
         if ("Profession" in requestBody) {
 
-            if (!validator.isValid(Profession)) {
+            if (!isValid(Profession)) {
                 return res.status(400).send({ status: false, message: "give Profession in the request body " })
             }
 
@@ -265,22 +276,21 @@ const deleteUser = async function(req, res) {
         const _id = req.params.userId;
 
         //id format validation
-        if (_id) {
             if (!isValidObjectId(_id)) {
                 return res
                     .status(400)
                     .send({ status: false, message: "Invalid userId" });
             }
-        }
+      
 
-        const user = await userModel.findOne({ _id: _id }, { isDeleted: false })
+        const user = await userModel.findOne({ _id:_id }, { isDeleted: false })
             //no users found
         if (!user) {
             return res.status(404).send({ status: false, message: "user not found" });
         }
         //return user in response
         const deleteuser = await userModel.findOneAndUpdate({ _id: _id }, {$set:{ isDeleted: true} },{new:true})
-        return res.status(200).send({ status: true,message:"User deleted successfully" , });
+        return res.status(200).send({ status: true, message:"User deleted successfully" });
 
 
     } catch (error) {
