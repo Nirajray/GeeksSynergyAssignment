@@ -146,9 +146,7 @@ const getUser = async function(req, res) {
         //id format validation
         if (_id) {
             if (!isValidObjectId(_id)) {
-                return res
-                    .status(400)
-                    .send({ status: false, message: "Invalid userId" });
+                return res.status(400).send({ status: false, message: "Invalid userId" });
             }
         }
 
