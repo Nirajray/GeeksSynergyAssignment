@@ -1,6 +1,6 @@
 # GeeksSynergyAssignment
 
-Coding Task==========>
+# Coding Task==========>
 1. Create a web application and connect with mongoDB
 
 2. Create a user registration page using bootstrap. Users field will be Name, Password, Email, Phone No, Profession. Note: Password should be save in encrypted format. 
