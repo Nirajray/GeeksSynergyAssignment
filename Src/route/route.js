@@ -14,10 +14,10 @@ router.post("/Login", userController.login)
 router.get("/getUsers", mid.authentication, userController.getUser)
 
 //Update users according to their fields
-router.put("/updateUser/:userId",mid.authentication, mid.authorization, userController.updateUser )
+router.put("/updateUser/:userId", mid.authentication, mid.authorization, userController.updateUser )
 
 //Delete user
-router.delete("/deleteUser/:userId",mid.authentication, mid.authorization,userController.deleteUser)
+router.delete("/deleteUser/:userId", mid.authentication, mid.authorization, userController.deleteUser)
 
 
 module.exports=router

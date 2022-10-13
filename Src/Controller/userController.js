@@ -19,7 +19,6 @@ const isValid = function(value) {
     if (typeof(value) === "string" && (value).trim().length > 0) {
         return true
     }
-
 }
 
 
@@ -27,7 +26,6 @@ const createUser = async function(req, res) {
     try {
 
         let body = req.body
-
         if (Object.keys(body).length === 0) {
             return res.status(400).send({ Status: false, message: " Sorry Body can't be empty" })
         }
@@ -45,13 +43,13 @@ const createUser = async function(req, res) {
         // For a Valid Email...
         if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(Email))) {
             return res.status(400).send({ status: false, message: ' Email should be a valid' })
-        };
+        }
 
         // Email is Unique...
         let duplicateEmail = await userModel.findOne({ Email: Email })
         if (duplicateEmail) {
             return res.status(400).send({ status: false, msg: 'Email already exist' })
-        };
+        }
 
            // //password Number is Mandatory...
            if (!isValid(Password)) {
@@ -160,8 +158,6 @@ const login = async function(req, res) {
 
 const getUser = async function(req, res) {
     try {
-      
-
         const user = await userModel.find({ isDeleted: false }).select({Name:1,_id:0})
         if (!user) {
             return res.status(404).send({ status: false, message: "user not found" });
@@ -264,6 +260,7 @@ const updateUser = async function(req, res) {
            
         let updates = await userModel.findOneAndUpdate({ _id: user_id }, { $set: filterBody }, { new: true })
         res.status(200).send({ status: true, message: "User profile updated", data: updates })
+
     } catch (error) {
         res.status(500).send({ status: false, msg: error.message })
     }
